@@ -4,14 +4,14 @@ import { AuthData } from '../auth-data.model';
 import { AuthService } from '../auth.service';
 
 @Component({
-  templateUrl: './login.component.html',
+  templateUrl: './signup.component.html',
 })
-export class LoginComponent {
+export class SignupComponent {
   isLoading = false;
 
   constructor(private authService: AuthService) {}
 
-  onLogin(form: NgForm) {
+  onSignup(form: NgForm) {
     if (form.invalid) {
       return;
     }
@@ -19,6 +19,6 @@ export class LoginComponent {
       form.value.email,
       form.value.password
     );
-    this.authService.loginUser(authData);
+    this.authService.createUser(authData);
   }
 }

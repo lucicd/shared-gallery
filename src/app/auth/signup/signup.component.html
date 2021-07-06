@@ -1,8 +1,8 @@
 <div class="p-grid p-jc-center">
   <div class="p-col-12 p-md-6 p-lg-4">
-    <p-card header="Login">
+    <p-card header="Signup">
       <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
-      <form (submit)="onLogin(loginForm)" #loginForm="ngForm" *ngIf="!isLoading">
+      <form (submit)="onSignup(signupForm)" #signupForm="ngForm" *ngIf="!isLoading">
         <div class="p-fluid">
           <div class="p-field">
             <label for="emil">Email*</label>
@@ -33,7 +33,7 @@
           </div>
           <div class="p-grid p-jc-center">
             <div class="p-col-4">
-              <p-button [disabled]="!loginForm.valid" label="Log&nbsp;In" type="submit"></p-button>
+              <p-button [disabled]="!signupForm.valid" label="Signup" type="submit"></p-button>
             </div>
           </div>
         </div>
