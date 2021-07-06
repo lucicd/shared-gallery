@@ -2,6 +2,10 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { LoginComponent } from "./auth/login/login.component";
 import { SignupComponent } from "./auth/signup/signup.component";
+import { BrowseComponent } from "./browse/browse/browse.component";
+import { HomeComponent } from "./home/home/home.component";
+import { MyAccountComponent } from "./my-account/my-account/my-account.component";
+import { UploadComponent } from "./upload/upload/upload.component";
 // import { ContactDetailComponent } from "./contacts/contact-detail/contact-detail.component";
 // import { ContactEditComponent } from "./contacts/contact-edit/contact-edit.component";
 // import { ContactsComponent } from "./contacts/contacts.component";
@@ -11,9 +15,12 @@ import { SignupComponent } from "./auth/signup/signup.component";
 // import { MessageListComponent } from "./messages/message-list/message-list.component";
 
 const appRoutes: Routes = [
-  { path: '', redirectTo: '/signup', pathMatch: 'full' },
+  { path: '', component: HomeComponent, pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'upload', component: UploadComponent },
+  { path: 'browse', component: BrowseComponent },
+  { path: 'ny-account', component: MyAccountComponent },
   // { path: 'documents', component: DocumentsComponent, children: [
   //   { path: 'new', component: DocumentEditComponent },
   //   { path: ':id', component: DocumentDetailComponent },
@@ -25,7 +32,7 @@ const appRoutes: Routes = [
   //   { path: ':id', component: ContactDetailComponent },
   //   { path: ':id/edit', component: ContactEditComponent }
   // ] },
-  {path: '**', redirectTo: '/signup'},
+  {path: '**', redirectTo: '/'},
 ];
 
 @NgModule({

@@ -13,12 +13,40 @@ export class MenuBarComponent implements OnInit {
 
   ngOnInit(): void {
     this.items = [
-      { label: 'Home', icon: 'pi pi-home' },
-      { label: 'Log In', icon: 'pi pi-sign-in' },
-      { label: 'Log Out', icon: 'pi pi-power-off' },
-      { label: 'Upload', icon: 'pi pi-cloud-upload' },
-      { label: 'Browse', icon: 'pi pi-images' },
-      { label: 'My Account', icon: 'pi pi-user-edit'}
+      { 
+        label: 'Home',
+        icon: 'pi pi-home',
+        routerLink: ['/home']
+      },
+      { 
+        label: 'Login',
+        icon: 'pi pi-sign-in',
+        routerLink: ['/login']
+      },
+      {
+        label: 'Signup',
+        icon: 'pi pi-sign-in',
+        routerLink: ['/signup']
+      },
+      { 
+        label: 'Logout', 
+        icon: 'pi pi-power-off' 
+      },
+      { 
+        label: 'Upload', 
+        icon: 'pi pi-cloud-upload',
+        routerLink: ['/upload']
+      },
+      { 
+        label: 'Browse', 
+        icon: 'pi pi-images',
+        routerLink: ['/browse']
+      },
+      {
+        label: 'My Account',
+        icon: 'pi pi-user-edit',
+        routerLink: ['/my-account']
+      }
     ];
   }
 
