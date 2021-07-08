@@ -33,7 +33,7 @@ export class MenuBarComponent implements OnInit {
         icon: 'pi pi-power-off' 
       },
       { 
-        label: 'Upload', 
+        label: 'Uploads', 
         icon: 'pi pi-cloud-upload',
         routerLink: ['/upload']
       },

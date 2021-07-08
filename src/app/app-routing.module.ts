@@ -5,7 +5,7 @@ import { SignupComponent } from "./auth/signup/signup.component";
 import { BrowseComponent } from "./browse/browse/browse.component";
 import { HomeComponent } from "./home/home/home.component";
 import { MyAccountComponent } from "./my-account/my-account/my-account.component";
-import { UploadComponent } from "./upload/upload/upload.component";
+import { UploadComponent } from "./upload/upload.component";
 // import { ContactDetailComponent } from "./contacts/contact-detail/contact-detail.component";
 // import { ContactEditComponent } from "./contacts/contact-edit/contact-edit.component";
 // import { ContactsComponent } from "./contacts/contacts.component";

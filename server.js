@@ -20,6 +20,7 @@ const { applySourceSpanToExpressionIfNeeded } = require('@angular/compiler/src/o
 // const contactRoutes = require('./server/routes/contacts');
 // const documentsRoutes = require('./server/routes/documents');
 const usersRoutes = require('./server/routes/users');
+const imagesRoutes = require('./server/routes/images');
 
 
 // Establish a connection to the mongo database.
@@ -71,6 +72,7 @@ app.use('/', index);
 // app.use('/contacts', contactRoutes);
 // app.use('/documents', documentsRoutes);
 app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/images', imagesRoutes);
 
 // Tell express to map all other non-defined routes back to the index page
 app.get('*', (req, res) => res.sendFile(indexPath));

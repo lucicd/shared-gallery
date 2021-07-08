@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuBarComponent } from './shared/menu-bar/menu-bar.component';
 import { SharedModule } from 'primeng/api';
+import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 
@@ -18,9 +19,13 @@ import { PasswordModule } from 'primeng/password';
 import { LoginComponent } from './auth/login/login.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { HomeComponent } from './home/home/home.component';
-import { UploadComponent } from './upload/upload/upload.component';
+import { UploadComponent } from './upload/upload.component';
 import { BrowseComponent } from './browse/browse/browse.component';
 import { MyAccountComponent } from './my-account/my-account/my-account.component';
+import { UploadDetailComponent } from './upload/upload-detail/upload-detail.component';
+import { UploadEditComponent } from './upload/upload-edit/upload-edit.component';
+import { UploadItemComponent } from './upload/upload-item/upload-item.component';
+import { UploadListComponent } from './upload/upload-list/upload-list.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +36,11 @@ import { MyAccountComponent } from './my-account/my-account/my-account.component
     HomeComponent,
     UploadComponent,
     BrowseComponent,
-    MyAccountComponent
+    MyAccountComponent,
+    UploadDetailComponent,
+    UploadEditComponent,
+    UploadItemComponent,
+    UploadListComponent
   ],
   imports: [
     BrowserModule,
@@ -42,6 +51,7 @@ import { MyAccountComponent } from './my-account/my-account/my-account.component
     ButtonModule,
     MenubarModule,
     SharedModule,
+    PanelModule,
     CardModule,
     InputTextModule,
     ProgressSpinnerModule,
