@@ -15,8 +15,8 @@ router.get('/', (req, res, next) => {
         data: images.map(
           image => {
             delete image._id;
-            image.owner = image.owner.id;
             image.ownerName = image.owner.name;
+            image.owner = image.owner.id;
             return image;
           }
         )

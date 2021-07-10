@@ -1,4 +1,4 @@
-<p-card header="{{ image.description }}">
+<p-card header="{{ image.title }}">
   <a
     [routerLink]="[image.id]"
     routerLinkActive="active">
@@ -6,7 +6,6 @@
       *ngIf="image.url"
       src="{{ image.url }}"
       alt="{{ image.description }}"
-      class="img-responsive"
-      style="max-height: 200px;">
+      style="width: 100%; height: auto">
   </a>
 </p-card>

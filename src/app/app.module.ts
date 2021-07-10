@@ -11,6 +11,7 @@ import { SharedModule } from 'primeng/api';
 import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
+import { ToolbarModule } from 'primeng/toolbar';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -55,7 +56,8 @@ import { UploadListComponent } from './upload/upload-list/upload-list.component'
     CardModule,
     InputTextModule,
     ProgressSpinnerModule,
-    PasswordModule
+    PasswordModule,
+    ToolbarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

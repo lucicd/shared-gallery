@@ -16,7 +16,6 @@ export class UploadService {
       .get<ServerResponse<Upload[]>>('http://localhost:3000/api/v1/images')
       .subscribe(
         (res: ServerResponse<Upload[]>) => {
-          console.log(res);
           this.images = res.data;
           this.sortAndSend();
         }
@@ -26,8 +25,10 @@ export class UploadService {
 
   private sortAndSend() {
     this.images.sort((firstEl, secondEl) => {
-      if (firstEl.id < secondEl.id) return -1;
-      if (firstEl.id > secondEl.id) return 1;
+      if (firstEl.id && secondEl.id) {
+        if (firstEl.id < secondEl.id) return -1;
+        if (firstEl.id > secondEl.id) return 1;
+      }
       return 0;
     });
     this.uploadListChangedEvent.next(this.images.slice());
@@ -36,7 +37,10 @@ export class UploadService {
   getUploads = (): Upload[] => this.images.slice()
 
   getUpload(id: number): Upload | null {
-    const pos = this.images.findIndex(e => e.id === id);
+    const pos = this.images.findIndex(e => {
+      if (!e.id) return false;
+      return +e.id === +id;
+    });
     return pos < 0 ? null : this.images[pos];
   }
 
@@ -48,7 +52,7 @@ export class UploadService {
     if (pos < 0) {
       return;
     }
-    this.http.delete<{message: string}>('http://localhost:3000/images/' + image.id)
+    this.http.delete<{message: string}>('http://localhost:3000/api/v1/images' + image.id)
       .subscribe((data: {message: string}) => {
         this.images.splice(pos, 1);
         this.sortAndSend();;
@@ -60,7 +64,7 @@ export class UploadService {
       return;
     }
 
-    this.http.post<{ message: string, contact: Upload }>('http://localhost:3000/images', newImage)
+    this.http.post<{ message: string, contact: Upload }>('http://localhost:3000/api/v1/images', newImage)
       .subscribe(
         (data: {message: string, contact: Upload}) => {
           newImage.id = data.contact.id;
@@ -70,7 +74,11 @@ export class UploadService {
       );
   }
 
-  updateUpload(originalImage: Upload | null, newImage: Upload | null) {
+  updateUpload(
+    originalImage: Upload | null, 
+    newImage: Upload | null,
+    callback: (() => any)
+  ): void {
     if (!originalImage || !newImage) {
       return;
     }
@@ -80,11 +88,12 @@ export class UploadService {
     }
     newImage.id = originalImage.id;
     this.images[pos] = newImage;
-    this.http.put<{message: string}>('http://localhost:3000/images/' + originalImage.id, newImage)
+    this.http.put<{message: string}>('http://localhost:3000/api/v1/images' + originalImage.id, newImage)
       .subscribe(
         (data: {message: string}) => {
           this.images[pos] = newImage;
           this.sortAndSend();
+          callback();
         }
       );
   }

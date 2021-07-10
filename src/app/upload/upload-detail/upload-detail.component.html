@@ -1,1 +1,28 @@
-<p>upload-detail works!</p>
+<div class="p-card">
+  <p-card>
+    <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
+    <div *ngIf="!isLoading">
+      <button
+        type="button"
+        pButton
+        [routerLink]="['edit']"
+        label="Edit">
+      </button>
+      <button
+        type="button"
+        pButton
+        (click)="onDelete()"
+        label="Delete">
+      </button>
+      <p>{{ upload.title }}</p>
+      <p>{{ upload.description }}</p>
+      <p>{{ upload.url }}</p>
+      <p>{{ upload.owner }}</p>
+      <img
+        *ngIf="upload.url"
+        src="{{ upload.url }}"
+        alt="{{ upload.description }}"
+        style="width: 100%; height: auto">
+    </div>
+  </p-card>
+</div>

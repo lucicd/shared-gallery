@@ -1,1 +1,65 @@
-<p>upload-edit works!</p>
+<div class="p-card">
+  <p-card>
+    <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
+    <form (submit)="onSubmit(f)" #f="ngForm" id="upload-edit" *ngIf="!isLoading">
+      <div class="p-fluid">
+        <div class="p-field">
+          <label for="title">Title*</label>
+          <input
+          type="text"
+          id="title"
+          name="title"
+          ngModel
+          #titleInput="ngModel"
+          required
+          [ngClass]="{'ng-invalid ng-dirty':titleInput.invalid && titleInput.touched}"
+          pInputText>
+          <small *ngIf="titleInput.invalid && titleInput.touched" class="p-error">Please enter valid email address.</small>
+        </div>
+        <div class="p-field">
+          <label for="description">Description</label>
+          <input
+          type="text"
+          id="description"
+          name="description"
+          ngModel
+          #descriptionInput="ngModel"
+          [ngClass]="{'ng-invalid ng-dirty':descriptionInput.invalid && descriptionInput.touched}"
+          pInputText>
+          <small *ngIf="descriptionInput.invalid && descriptionInput.touched" class="p-error">Please enter valid email address.</small>
+        </div>
+        <div class="p-field">
+          <label for="url">URL*</label>
+          <input
+          type="text"
+          id="url"
+          name="url"
+          ngModel
+          #urlInput="ngModel"
+          [ngClass]="{'ng-invalid ng-dirty':urlInput.invalid && urlInput.touched}"
+          pInputText>
+          <small *ngIf="urlInput.invalid && urlInput.touched" class="p-error">Please enter valid email address.</small>
+        </div>
+        <div class="p-d-flex">
+          <button
+            pButton
+            pRipple
+            [disabled]="!f.valid"
+            label="Save" 
+            class="p-button-raised p-mr-2"
+            type="submit">
+          </button>
+          <button
+            pButton
+            pRipple
+            label="Cancel"
+            class="p-button-raised p-button-secondary p-mr-2"
+            type="button"
+            (click)="onCancel()">
+          </button>
+        </div>
+      </div>
+    </form>
+  </p-card>
+  </div>
+  
