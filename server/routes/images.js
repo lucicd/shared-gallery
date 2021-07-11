@@ -2,6 +2,7 @@ const express = require('express');
 const sequenceGenerator = require('./sequenceGenerator');
 const Image = require('../models/image');
 const User = require('../models/user');
+const checkAuth = require('../middleware/check-auth');
 
 const router = express.Router();
 
@@ -37,22 +38,33 @@ function getOwner(ownerId) {
       return;
     }
     User.findOne({ id: ownerId })
-      .then(owner => resolve(owner))
+      .then(owner => {
+        // console.log(owner);
+        resolve(owner);
+      })
       .catch(() => reject('Owner not found'));
   });
 }
 
-router.post('/', (req, res, next) => {
-  getOwner(req.body.ownerId)
+router.post(
+  '/',
+  checkAuth,
+  (req, res, next) => {
+  // console.log(req);
+  getOwner(req.body.owner_id)
     .then(
       owner => {
+        // console.log(owner);
         const maxImageId = sequenceGenerator.nextId('images');
         const image = new Image({
           id: maxImageId,
+          title: req.body.title,
           description: req.body.description,
           url: req.body.url,
           owner: owner._id
         });
+        // console.log(req.body.title);
+        // console.log(image);
         image.save()
           .then(savedImage => {
             res.status(201).json({
@@ -61,6 +73,7 @@ router.post('/', (req, res, next) => {
             });
           })
           .catch(error => {
+            console.log(error);
             res.status(500).json({
               message: 'An error occurred',
               data: error

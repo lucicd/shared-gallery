@@ -1,9 +1,8 @@
-export class Upload {
+export class NewUpload {
   constructor(
-    public id: number | null,
     public title: string,
     public description: string,
     public url: string,
-    public owner: string
+    public owner_id: number,
   ) {}
 }

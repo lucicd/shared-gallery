@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const user = require('../models/user');
+const getSecretString = require('../common/secret-string');
 
 const router = express.Router();
 
@@ -48,12 +49,17 @@ router.post('/signup', (req, res, next) => {
             }
             const token = jwt.sign(
               { email: user.email, userId: user._id },
-              'this-is-just-for-development', 
+              getSecretString(), 
               { expiresIn: '1h' }
             );
             res.status(200).json({
               message: 'Authentication successful.',
-              data: token
+              data: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                token: token
+              }
             });
           })
           .catch(error => {

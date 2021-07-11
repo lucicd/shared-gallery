@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Upload } from '../upload.model';
+import { ExistingUpload } from '../existing-upload.model';
 import { UploadService } from '../upload.service';
 
 @Component({
@@ -10,7 +10,7 @@ import { UploadService } from '../upload.service';
   styleUrls: ['./upload-detail.component.css']
 })
 export class UploadDetailComponent implements OnInit, OnDestroy {
-  upload: Upload = {} as Upload;
+  upload: ExistingUpload = {} as ExistingUpload;
   private subscription: Subscription = {} as Subscription;
   isLoading = false;
 
@@ -22,11 +22,11 @@ export class UploadDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription = this.uploadService.uploadListChangedEvent.subscribe(
       () => this.upload = this.uploadService
-        .getUpload(+this.activatedRoute.snapshot.params['id']) ?? {} as Upload
+        .getUpload(+this.activatedRoute.snapshot.params['id']) ?? {} as ExistingUpload
     );
     this.activatedRoute.params.subscribe(
       (params: Params) => this.upload =
-        this.uploadService.getUpload(params['id']) ?? {} as Upload
+        this.uploadService.getUpload(params['id']) ?? {} as ExistingUpload
     );
   }
 

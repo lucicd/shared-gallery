@@ -1,5 +1,5 @@
 import { Component, Input} from '@angular/core';
-import { Upload } from '../upload.model';
+import { ExistingUpload } from '../existing-upload.model';
 
 @Component({
   selector: 'shg-upload-item',
@@ -7,5 +7,5 @@ import { Upload } from '../upload.model';
   styleUrls: ['./upload-item.component.css']
 })
 export class UploadItemComponent {
-  @Input() image: Upload = {} as Upload;
+  @Input() image: ExistingUpload = {} as ExistingUpload;
 }

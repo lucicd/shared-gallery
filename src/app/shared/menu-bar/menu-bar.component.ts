@@ -35,7 +35,7 @@ export class MenuBarComponent implements OnInit {
       { 
         label: 'Uploads', 
         icon: 'pi pi-cloud-upload',
-        routerLink: ['/upload']
+        routerLink: ['/uploads']
       },
       { 
         label: 'Browse', 

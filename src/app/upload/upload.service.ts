@@ -1,21 +1,22 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ServerResponse } from '../shared/server-response';
 import { Subject } from 'rxjs';
-import { Upload } from './upload.model';
+import { ExistingUpload } from './existing-upload.model';
+import { NewUpload } from './new-upload.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UploadService {
-  private images: Upload[] = [];
-  uploadListChangedEvent = new Subject<Upload[]>();
+  private images: ExistingUpload[] = [];
+  uploadListChangedEvent = new Subject<ExistingUpload[]>();
 
   constructor(private http: HttpClient) {
     this.http
-      .get<ServerResponse<Upload[]>>('http://localhost:3000/api/v1/images')
+      .get<ServerResponse<ExistingUpload[]>>('http://localhost:3000/api/v1/images')
       .subscribe(
-        (res: ServerResponse<Upload[]>) => {
+        (res: ServerResponse<ExistingUpload[]>) => {
           this.images = res.data;
           this.sortAndSend();
         }
@@ -34,9 +35,9 @@ export class UploadService {
     this.uploadListChangedEvent.next(this.images.slice());
   }
 
-  getUploads = (): Upload[] => this.images.slice()
+  getUploads = (): ExistingUpload[] => this.images.slice()
 
-  getUpload(id: number): Upload | null {
+  getUpload(id: number): ExistingUpload | null {
     const pos = this.images.findIndex(e => {
       if (!e.id) return false;
       return +e.id === +id;
@@ -44,7 +45,7 @@ export class UploadService {
     return pos < 0 ? null : this.images[pos];
   }
 
-  deleteUpload(image: Upload) {
+  deleteUpload(image: ExistingUpload) {
     if (!image) {
       return;
     }
@@ -59,39 +60,39 @@ export class UploadService {
       });
   }
 
-  addUpload(newImage: Upload): void {
-    if (!newImage) {
-      return;
-    }
-
-    this.http.post<{ message: string, contact: Upload }>('http://localhost:3000/api/v1/images', newImage)
+  addUpload(
+    newImage: NewUpload,
+    callback: ((id: number) => any),
+    fail: ((error: any) => any)
+  ): void {
+    this.http.post<ServerResponse<ExistingUpload>>('http://localhost:3000/api/v1/images', newImage)
       .subscribe(
-        (data: {message: string, contact: Upload}) => {
-          newImage.id = data.contact.id;
-          this.images.push(newImage);
+        (res: ServerResponse<ExistingUpload>) => {
+          this.images.push(res.data);
           this.sortAndSend();
+          callback(res.data.id);
+        },
+        (err: HttpErrorResponse) => {
+          fail(err);
         }
       );
   }
 
   updateUpload(
-    originalImage: Upload | null, 
-    newImage: Upload | null,
+    originalImage: ExistingUpload, 
+    newImage: NewUpload,
     callback: (() => any)
   ): void {
-    if (!originalImage || !newImage) {
-      return;
-    }
     const pos = this.images.findIndex(e => e.id === originalImage.id);
     if (pos < 0) {
       return;
     }
-    newImage.id = originalImage.id;
-    this.images[pos] = newImage;
+    this.images[pos].title = newImage.title;
+    this.images[pos].description = newImage.description;
+    this.images[pos].url = newImage.url;
     this.http.put<{message: string}>('http://localhost:3000/api/v1/images' + originalImage.id, newImage)
       .subscribe(
         (data: {message: string}) => {
-          this.images[pos] = newImage;
           this.sortAndSend();
           callback();
         }

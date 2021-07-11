@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div class="p-card">
   <p-card>
     <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
@@ -9,7 +10,7 @@
           type="text"
           id="title"
           name="title"
-          ngModel
+          [ngModel]="upload?.title"
           #titleInput="ngModel"
           required
           [ngClass]="{'ng-invalid ng-dirty':titleInput.invalid && titleInput.touched}"
@@ -22,7 +23,7 @@
           type="text"
           id="description"
           name="description"
-          ngModel
+          [ngModel]="upload?.description"
           #descriptionInput="ngModel"
           [ngClass]="{'ng-invalid ng-dirty':descriptionInput.invalid && descriptionInput.touched}"
           pInputText>
@@ -34,12 +35,17 @@
           type="text"
           id="url"
           name="url"
-          ngModel
+          [ngModel]="upload?.url"
           #urlInput="ngModel"
           [ngClass]="{'ng-invalid ng-dirty':urlInput.invalid && urlInput.touched}"
           pInputText>
           <small *ngIf="urlInput.invalid && urlInput.touched" class="p-error">Please enter valid email address.</small>
         </div>
+        <img
+          *ngIf="upload.url"
+          src="{{ upload.url }}"
+          alt="{{ upload.description }}"
+          style="width: 100%; height: auto">
         <div class="p-d-flex">
           <button
             pButton

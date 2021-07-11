@@ -20,7 +20,7 @@ const appRoutes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  { path: 'upload', component: UploadComponent, children: [
+  { path: 'uploads', component: UploadComponent, children: [
     { path: 'new', component: UploadEditComponent },
     { path: ':id', component: UploadDetailComponent },
     { path: ':id/edit', component: UploadEditComponent }
