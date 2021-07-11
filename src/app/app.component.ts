@@ -1,10 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'shg-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  title = 'shared-gallery';
+export class AppComponent implements OnInit {
+  title = 'Shared Gallery';
+
+  constructor(private authService: AuthService) {}
+  
+  ngOnInit(): void {
+    this.authService.autoAuthUser();
+  }
 }

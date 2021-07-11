@@ -3,6 +3,7 @@ export class CurrentUser {
     public id: number,
     public email: string,
     public name: string,
-    public token: string
+    public token: string,
+    public expiresIn: number
   ) {}
 }

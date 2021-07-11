@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { AuthGuard } from "./auth/auth-guard";
 import { LoginComponent } from "./auth/login/login.component";
 import { SignupComponent } from "./auth/signup/signup.component";
 import { BrowseComponent } from "./browse/browse/browse.component";
@@ -20,29 +21,19 @@ const appRoutes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  { path: 'uploads', component: UploadComponent, children: [
+  { path: 'uploads', component: UploadComponent, canActivate: [AuthGuard], children: [
     { path: 'new', component: UploadEditComponent },
     { path: ':id', component: UploadDetailComponent },
     { path: ':id/edit', component: UploadEditComponent }
   ] },
   { path: 'browse', component: BrowseComponent },
-  { path: 'ny-account', component: MyAccountComponent },
-  // { path: 'documents', component: DocumentsComponent, children: [
-  //   { path: 'new', component: DocumentEditComponent },
-  //   { path: ':id', component: DocumentDetailComponent },
-  //   { path: ':id/edit', component: DocumentEditComponent }
-  // ] },
-  // { path: 'messages', component: MessageListComponent },
-  // { path: 'contacts', component: ContactsComponent, children: [
-  //   { path: 'new', component: ContactEditComponent },
-  //   { path: ':id', component: ContactDetailComponent },
-  //   { path: ':id/edit', component: ContactEditComponent }
-  // ] },
-  {path: '**', redirectTo: '/'},
+  { path: 'my-account', component: MyAccountComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '/'},
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(appRoutes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [AuthGuard]
 })
 export class AppRoutingModule {}

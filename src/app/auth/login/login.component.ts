@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthData } from '../auth-data.model';
 import { AuthService } from '../auth.service';
 
@@ -9,7 +10,9 @@ import { AuthService } from '../auth.service';
 export class LoginComponent {
   isLoading = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router) {}
 
   onLogin(form: NgForm) {
     if (form.invalid) {

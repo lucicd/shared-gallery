@@ -58,7 +58,8 @@ router.post('/signup', (req, res, next) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                token: token
+                token: token,
+                expiresIn: 3600
               }
             });
           })
