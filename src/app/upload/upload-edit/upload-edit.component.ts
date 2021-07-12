@@ -4,10 +4,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
-import { AuthService } from 'src/app/auth/auth.service';
-import { ExistingUpload } from '../existing-upload.model';
-import { NewUpload } from '../new-upload.model';
 import { UploadService } from '../upload.service';
+import { Upload } from '../upload.model';
 import { mimeType  } from '../../shared/mime-type.validator'
 
 @Component({
@@ -17,8 +15,7 @@ import { mimeType  } from '../../shared/mime-type.validator'
   providers: [MessageService]
 })
 export class UploadEditComponent implements OnInit, OnDestroy {
-  originalUpload: ExistingUpload = {} as ExistingUpload;
-  upload: ExistingUpload = {} as ExistingUpload;
+  upload: Upload = {} as Upload;
   private subscription: Subscription = {} as Subscription;
   isLoading = false;
   form: FormGroup = {} as FormGroup;
@@ -29,8 +26,7 @@ export class UploadEditComponent implements OnInit, OnDestroy {
     private uploadService: UploadService, 
     private router: Router, 
     private activatedRoute: ActivatedRoute,
-    private messageService: MessageService,
-    private authService: AuthService) { }
+    private messageService: MessageService) { }
 
   showError(err: string) {
     this.messageService.add({
@@ -61,9 +57,8 @@ export class UploadEditComponent implements OnInit, OnDestroy {
       if (!upload) {
         return;
       }
-      this.originalUpload = upload;
+      this.upload = upload;
       this.editMode = true;
-      this.upload = JSON.parse(JSON.stringify(this.originalUpload));
       this.form.setValue({
         'title': this.upload.title,
         'description': this.upload.description,
@@ -78,7 +73,7 @@ export class UploadEditComponent implements OnInit, OnDestroy {
 
     this.activatedRoute.params.subscribe(
       (params: Params) => prepareData(+params['id'])
-    );    
+    ); 
   }
 
   onCancel = () => this.router.navigate(['uploads', this.upload.id])
@@ -103,28 +98,26 @@ export class UploadEditComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const newUpload = new NewUpload(
-      this.form.value.title,
-      this.form.value.description,
-      this.form.value.url,
-      this.authService.getId(),
-      this.form.value.image
-    );
-
     this.isLoading = true;
     if (this.editMode === true) {
       this.uploadService.updateUpload(
-        this.originalUpload,
-        newUpload,
+        this.upload.id,
+        this.form.value.title,
+        this.form.value.description, 
         this.form.value.image,
         () => {
           this.isLoading = false;
-          this.router.navigate(['uploads', this.originalUpload?.id]);
-        }
-      );
+          this.router.navigate(['uploads', this.upload.id]);
+        },
+        (err: HttpErrorResponse) => {
+          this.isLoading = false;
+          this.showError(err.status + ' ' + err.statusText);
+        });
     } else {
       this.uploadService.addUpload(
-        newUpload, 
+        this.form.value.title,
+        this.form.value.description, 
+        this.form.value.image,
         (id: number) => {
           this.isLoading = false;
           // this.router.navigate(['uploads', id]);

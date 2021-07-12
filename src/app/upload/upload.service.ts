@@ -2,22 +2,28 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ServerResponse } from '../shared/server-response';
 import { Subject } from 'rxjs';
-import { ExistingUpload } from './existing-upload.model';
-import { NewUpload } from './new-upload.model';
+import { AuthService } from '../auth/auth.service';
+import { Upload } from './upload.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UploadService {
-  private images: ExistingUpload[] = [];
-  uploadListChangedEvent = new Subject<ExistingUpload[]>();
+  private images: Upload[] = [];
+  uploadListChangedEvent = new Subject<Upload[]>();
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService 
+  ) {
     this.http
-      .get<ServerResponse<ExistingUpload[]>>('http://localhost:3000/api/v1/images')
+      .get<Upload[]>
+        ('http://localhost:3000/api/v1/images/for-owner/' + 
+        authService.getId()
+      )
       .subscribe(
-        (res: ServerResponse<ExistingUpload[]>) => {
-          this.images = res.data;
+        (res: Upload[]) => {
+          this.images = res;
           this.sortAndSend();
         }
       ),
@@ -35,9 +41,9 @@ export class UploadService {
     this.uploadListChangedEvent.next(this.images.slice());
   }
 
-  getUploads = (): ExistingUpload[] => this.images.slice()
+  getUploads = (): Upload[] => this.images.slice()
 
-  getUpload(id: number): ExistingUpload | null {
+  getUpload(id: number): Upload | null {
     const pos = this.images.findIndex(e => {
       if (!e.id) return false;
       return +e.id === +id;
@@ -45,7 +51,7 @@ export class UploadService {
     return pos < 0 ? null : this.images[pos];
   }
 
-  deleteUpload(image: ExistingUpload) {
+  deleteUpload(image: Upload) {
     if (!image) {
       return;
     }
@@ -53,7 +59,7 @@ export class UploadService {
     if (pos < 0) {
       return;
     }
-    this.http.delete<{message: string}>('http://localhost:3000/api/v1/images' + image.id)
+    this.http.delete<{message: string}>('http://localhost:3000/api/v1/images/' + image.id)
       .subscribe((data: {message: string}) => {
         this.images.splice(pos, 1);
         this.sortAndSend();;
@@ -61,22 +67,23 @@ export class UploadService {
   }
 
   addUpload(
-    newImage: NewUpload,
+    title: string,
+    description: string,
+    image: File,
     callback: ((id: number) => any),
     fail: ((error: any) => any)
   ): void {
     const uploadData = new FormData();
-    uploadData.append('title', newImage.title);
-    uploadData.append('description', newImage.description);
-    // uploadData.append('url', newImage.url);
-    uploadData.append('owner_id', newImage.owner_id.toString());
-    uploadData.append('image', newImage.image, newImage.title);
-    this.http.post<ServerResponse<ExistingUpload>>(
+    uploadData.append('title', title);
+    uploadData.append('description', description);
+    uploadData.append('owner_id', this.authService.getId().toString());
+    uploadData.append('image', image, title);
+    this.http.post<any>(
       'http://localhost:3000/api/v1/images', 
       uploadData
       )
       .subscribe(
-        (res: ServerResponse<ExistingUpload>) => {
+        (res: any) => {
           this.images.push(res.data);
           this.sortAndSend();
           callback(res.data.id);
@@ -88,37 +95,59 @@ export class UploadService {
   }
 
   updateUpload(
-    originalImage: ExistingUpload, 
-    newImage: NewUpload,
-    pickedImage: File | string,
-    callback: (() => any)
+    id: number,
+    title: string,
+    description: string,
+    image: File | string,
+    callback: (() => any),
+    fail: ((error: any) => any)
   ): void {
-    let uploadData: NewUpload | FormData = {} as NewUpload | FormData;
-    if (typeof(pickedImage) === 'object') {
-      uploadData = new FormData();
-      uploadData.append('title', newImage.title);
-      uploadData.append('description', newImage.description);
-      // uploadData.append('url', newImage.url);
-      uploadData.append('owner_id', newImage.owner_id.toString());
-      uploadData.append('image', pickedImage, newImage.title);
-    } else {
-      uploadData = newImage;
-    }
-    const pos = this.images.findIndex(e => e.id === originalImage.id);
+    const pos = this.images.findIndex(e => e.id === id);
     if (pos < 0) {
       return;
     }
-    this.http.put<ServerResponse<ExistingUpload>>(
-      'http://localhost:3000/api/v1/images/' + originalImage.id, 
+
+    class UploadData {
+      constructor(
+        public id: number,
+        public title: string,
+        public description: string,
+        public owner_id: number,
+        public url: string 
+      ) {}
+    }
+
+    let uploadData: FormData | UploadData = {} as FormData | UploadData;
+    
+    if (typeof(image) === 'object') {
+      uploadData = new FormData();
+      uploadData.append('title', title);
+      uploadData.append('description', description);
+      uploadData.append('owner_id', this.authService.getId().toString());
+      uploadData.append('image', image, title);
+    } else {
+      uploadData = new UploadData(
+        id,
+        title,
+        description,
+        this.authService.getId(),
+        image
+      );
+    }
+    this.http.put<{ url: string }>(
+      'http://localhost:3000/api/v1/images/' + id, 
       uploadData
     )
     .subscribe(
-      (res: ServerResponse<ExistingUpload>) => {
-        this.images[pos].title = res.data.title;
-        this.images[pos].description = res.data.description;
-        this.images[pos].url = res.data.url;
+      (res: { url: string }) => {
+        this.images[pos].title = title;
+        this.images[pos].description = description;
+        this.images[pos].url = res.url;
         this.sortAndSend();
         callback();
+      },
+      (err: HttpErrorResponse) => {
+        fail(err);
       }
     );
   }
