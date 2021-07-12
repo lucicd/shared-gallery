@@ -8,6 +8,7 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { ExistingUpload } from '../existing-upload.model';
 import { NewUpload } from '../new-upload.model';
 import { UploadService } from '../upload.service';
+import { mimeType  } from '../../shared/mime-type.validator'
 
 @Component({
   selector: 'shg-upload-edit',
@@ -46,10 +47,8 @@ export class UploadEditComponent implements OnInit, OnDestroy {
       }),
       'description': new FormControl(null),
       'image': new FormControl(null, {
-        validators: [Validators.required]
-      }),
-      'url':new FormControl(null, {
-        validators: [Validators.required]
+        validators: [Validators.required],
+        asyncValidators: [mimeType]
       }),
     });
 
@@ -68,7 +67,7 @@ export class UploadEditComponent implements OnInit, OnDestroy {
       this.form.setValue({
         'title': this.upload.title,
         'description': this.upload.description,
-        'url': this.upload.url
+        'image': this.upload.url
       });
     }
 
@@ -108,7 +107,8 @@ export class UploadEditComponent implements OnInit, OnDestroy {
       this.form.value.title,
       this.form.value.description,
       this.form.value.url,
-      this.authService.getId()
+      this.authService.getId(),
+      this.form.value.image
     );
 
     this.isLoading = true;
@@ -116,6 +116,7 @@ export class UploadEditComponent implements OnInit, OnDestroy {
       this.uploadService.updateUpload(
         this.originalUpload,
         newUpload,
+        this.form.value.image,
         () => {
           this.isLoading = false;
           this.router.navigate(['uploads', this.originalUpload?.id]);

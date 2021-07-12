@@ -1,10 +1,33 @@
 const express = require('express');
+const multer = require('multer');
 const sequenceGenerator = require('./sequenceGenerator');
 const Image = require('../models/image');
 const User = require('../models/user');
 const checkAuth = require('../middleware/check-auth');
 
 const router = express.Router();
+
+const MIMIE_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg'
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    const isValid = MIMIE_TYPE_MAP[file.mimetype];
+    let error = new Error('Invalid mime type');
+    if (isValid) {
+      error = null;
+    }
+    callback(error, 'server/images');
+  },
+  filename: (req, file, callback) => {
+    const name = file.originalname.toLowerCase().split(' ').join('-');
+    const extension = MIMIE_TYPE_MAP[file.mimetype];
+    callback(null, name + '-' + Date.now() + '.' + extension);
+  }
+});
 
 router.get('/', (req, res, next) => {
   Image.find()
@@ -49,22 +72,63 @@ function getOwner(ownerId) {
 router.post(
   '/',
   checkAuth,
+  multer({ storage: storage }).single('image'),
   (req, res, next) => {
   // console.log(req);
   getOwner(req.body.owner_id)
     .then(
       owner => {
-        // console.log(owner);
         const maxImageId = sequenceGenerator.nextId('images');
+        const url = req.protocol + '://' + req.get('host');
         const image = new Image({
           id: maxImageId,
           title: req.body.title,
           description: req.body.description,
-          url: req.body.url,
+          url: url + '/images/' + req.file.filename,
           owner: owner._id
         });
-        // console.log(req.body.title);
-        // console.log(image);
+        image.save()
+          .then(savedImage => {
+            res.status(201).json({
+              message: 'Image added successfully',
+              data: savedImage
+            });
+          })
+          .catch(error => {
+            console.log(error);
+            res.status(500).json({
+              message: 'An error occurred',
+              data: error
+            });
+          });
+      },
+      error => {
+        res.status(404).json({
+          message: error,
+          data: error
+        });
+      }
+    );
+});
+
+router.put(
+  '/',
+  checkAuth,
+  multer({ storage: storage }).single('image'),
+  (req, res, next) => {
+  // console.log(req);
+  getOwner(req.body.owner_id)
+    .then(
+      owner => {
+        const maxImageId = sequenceGenerator.nextId('images');
+        const url = req.protocol + '://' + req.get('host');
+        const image = new Image({
+          id: maxImageId,
+          title: req.body.title,
+          description: req.body.description,
+          url: url + '/images/' + req.file.filename,
+          owner: owner._id
+        });
         image.save()
           .then(savedImage => {
             res.status(201).json({

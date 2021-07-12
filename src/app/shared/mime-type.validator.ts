@@ -3,10 +3,10 @@ import { Observable, Observer } from "rxjs";
 
 export const mimeType = (
   control: AbstractControl
-): Promise<{[key: string]: any}> | Observable<{[key: string]: any}> => {
+): Promise<{ [key: string]: any } | null> | Observable<{ [key: string]: any } | null> => {
   const file = control.value as File;
   const fileReader = new FileReader();
-  const frObs = new Observable((observer: Observer<{[key: string]: any} | null>) => {
+  const frObs = new Observable((observer: Observer<{ [key: string]: any } | null>) => {
     fileReader.addEventListener('loadend', () => {
       const arr = new Uint8Array(fileReader.result as ArrayBuffer).subarray(0, 4);
       let header = '';

@@ -4,5 +4,6 @@ export class NewUpload {
     public description: string,
     public url: string,
     public owner_id: number,
+    public image: File
   ) {}
 }

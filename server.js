@@ -40,6 +40,7 @@ var app = express(); // create an instance of express
 // Tell express to use the following parsers for POST data
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+app.use('/images', express.static(path.join('server/images')));
 
 app.use(cookieParser());
 

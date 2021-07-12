@@ -65,7 +65,16 @@ export class UploadService {
     callback: ((id: number) => any),
     fail: ((error: any) => any)
   ): void {
-    this.http.post<ServerResponse<ExistingUpload>>('http://localhost:3000/api/v1/images', newImage)
+    const uploadData = new FormData();
+    uploadData.append('title', newImage.title);
+    uploadData.append('description', newImage.description);
+    // uploadData.append('url', newImage.url);
+    uploadData.append('owner_id', newImage.owner_id.toString());
+    uploadData.append('image', newImage.image, newImage.title);
+    this.http.post<ServerResponse<ExistingUpload>>(
+      'http://localhost:3000/api/v1/images', 
+      uploadData
+      )
       .subscribe(
         (res: ServerResponse<ExistingUpload>) => {
           this.images.push(res.data);
@@ -81,21 +90,36 @@ export class UploadService {
   updateUpload(
     originalImage: ExistingUpload, 
     newImage: NewUpload,
+    pickedImage: File | string,
     callback: (() => any)
   ): void {
+    let uploadData: NewUpload | FormData = {} as NewUpload | FormData;
+    if (typeof(pickedImage) === 'object') {
+      uploadData = new FormData();
+      uploadData.append('title', newImage.title);
+      uploadData.append('description', newImage.description);
+      // uploadData.append('url', newImage.url);
+      uploadData.append('owner_id', newImage.owner_id.toString());
+      uploadData.append('image', pickedImage, newImage.title);
+    } else {
+      uploadData = newImage;
+    }
     const pos = this.images.findIndex(e => e.id === originalImage.id);
     if (pos < 0) {
       return;
     }
-    this.images[pos].title = newImage.title;
-    this.images[pos].description = newImage.description;
-    this.images[pos].url = newImage.url;
-    this.http.put<{message: string}>('http://localhost:3000/api/v1/images' + originalImage.id, newImage)
-      .subscribe(
-        (data: {message: string}) => {
-          this.sortAndSend();
-          callback();
-        }
-      );
+    this.http.put<ServerResponse<ExistingUpload>>(
+      'http://localhost:3000/api/v1/images/' + originalImage.id, 
+      uploadData
+    )
+    .subscribe(
+      (res: ServerResponse<ExistingUpload>) => {
+        this.images[pos].title = res.data.title;
+        this.images[pos].description = res.data.description;
+        this.images[pos].url = res.data.url;
+        this.sortAndSend();
+        callback();
+      }
+    );
   }
 }

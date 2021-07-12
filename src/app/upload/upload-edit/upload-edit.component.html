@@ -24,15 +24,6 @@
             formControlName="description"
             pInputText>
         </div>
-        <div class="p-field">
-          <label for="url">URL*</label>
-          <input
-            type="text"
-            id="url"
-            name="url"
-            formControlName="url"
-            pInputText>
-        </div>
         <hr>
         
         <div>
@@ -49,7 +40,7 @@
 
         <hr>
 
-        <div *ngIf="imagePreview !== ''">
+        <div *ngIf="imagePreview !== '' && form.get('image')?.valid">
           <img
             [src]="imagePreview"
             [alt]="form.value.description"
