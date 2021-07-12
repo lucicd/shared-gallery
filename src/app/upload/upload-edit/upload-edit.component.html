@@ -2,44 +2,36 @@
 <div class="p-card">
   <p-card>
     <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
-    <form (submit)="onSubmit(f)" #f="ngForm" id="upload-edit" *ngIf="!isLoading">
+    <form [formGroup]="form" (submit)="onSubmit()" id="upload-edit" *ngIf="!isLoading">
       <div class="p-fluid">
         <div class="p-field">
           <label for="title">Title*</label>
           <input
-          type="text"
-          id="title"
-          name="title"
-          [ngModel]="upload?.title"
-          #titleInput="ngModel"
-          required
-          [ngClass]="{'ng-invalid ng-dirty':titleInput.invalid && titleInput.touched}"
-          pInputText>
-          <small *ngIf="titleInput.invalid && titleInput.touched" class="p-error">Please enter valid email address.</small>
+            type="text"
+            id="title"
+            name="title"
+            formControlName="title"
+            [ngClass]="{'ng-invalid ng-dirty':form.get('title')?.invalid && form.get('title')?.touched}"
+            pInputText>
+          <small *ngIf="form.get('title')?.invalid && form.get('title')?.touched" class="p-error">Please enter valid title.</small>
         </div>
         <div class="p-field">
           <label for="description">Description</label>
           <input
-          type="text"
-          id="description"
-          name="description"
-          [ngModel]="upload?.description"
-          #descriptionInput="ngModel"
-          [ngClass]="{'ng-invalid ng-dirty':descriptionInput.invalid && descriptionInput.touched}"
-          pInputText>
-          <small *ngIf="descriptionInput.invalid && descriptionInput.touched" class="p-error">Please enter valid email address.</small>
+            type="text"
+            id="description"
+            name="description"
+            formControlName="description"
+            pInputText>
         </div>
         <div class="p-field">
           <label for="url">URL*</label>
           <input
-          type="text"
-          id="url"
-          name="url"
-          [ngModel]="upload?.url"
-          #urlInput="ngModel"
-          [ngClass]="{'ng-invalid ng-dirty':urlInput.invalid && urlInput.touched}"
-          pInputText>
-          <small *ngIf="urlInput.invalid && urlInput.touched" class="p-error">Please enter valid email address.</small>
+            type="text"
+            id="url"
+            name="url"
+            formControlName="url"
+            pInputText>
         </div>
         <hr>
         
@@ -52,16 +44,17 @@
             class="p-button-raised p-button-secondary p-mr-2"
             type="button">
           </button>
-          <input type="file" #filePicker style="visibility: hidden;">
+          <input type="file" #filePicker (change)="onImagePicked($event)" style="visibility: hidden;">
         </div>
-        
+
         <hr>
-        
-        <p-fileUpload
-          name="myfile[]"
-          url="./upload.php"
-          accept="image/*">
-        </p-fileUpload>
+
+        <div *ngIf="imagePreview !== ''">
+          <img
+            [src]="imagePreview"
+            [alt]="form.value.description"
+            style="width: 100%; height: auto">
+        </div>
         
         <hr>
         
@@ -70,11 +63,14 @@
           src="{{ upload.url }}"
           alt="{{ upload.description }}"
           style="width: 100%; height: auto">
+
+        <hr>
+
         <div class="p-d-flex">
           <button
             pButton
             pRipple
-            [disabled]="!f.valid"
+            [disabled]="!this.form?.valid"
             label="Save" 
             class="p-button-raised p-mr-2"
             type="submit">

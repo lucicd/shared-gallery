@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
@@ -20,7 +20,9 @@ export class UploadEditComponent implements OnInit, OnDestroy {
   upload: ExistingUpload = {} as ExistingUpload;
   private subscription: Subscription = {} as Subscription;
   isLoading = false;
+  form: FormGroup = {} as FormGroup;
   editMode = false;
+  imagePreview = "";
 
   constructor(
     private uploadService: UploadService, 
@@ -38,6 +40,19 @@ export class UploadEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.form = new FormGroup({
+      'title':new FormControl(null, {
+        validators: [Validators.required, Validators.minLength(3)]
+      }),
+      'description': new FormControl(null),
+      'image': new FormControl(null, {
+        validators: [Validators.required]
+      }),
+      'url':new FormControl(null, {
+        validators: [Validators.required]
+      }),
+    });
+
     const prepareData = (id:number | null) => {
       if (!id) {
         this.editMode = false;
@@ -50,6 +65,11 @@ export class UploadEditComponent implements OnInit, OnDestroy {
       this.originalUpload = upload;
       this.editMode = true;
       this.upload = JSON.parse(JSON.stringify(this.originalUpload));
+      this.form.setValue({
+        'title': this.upload.title,
+        'description': this.upload.description,
+        'url': this.upload.url
+      });
     }
 
     this.subscription = 
@@ -64,15 +84,30 @@ export class UploadEditComponent implements OnInit, OnDestroy {
 
   onCancel = () => this.router.navigate(['uploads', this.upload.id])
 
-  onSubmit(form: NgForm) {
-    if (form.invalid) {
+  onImagePicked(event: Event) {
+    const files = (event.target as HTMLInputElement).files;
+    if (!files || files.length === 0) {
+      return;
+    }
+    const file = files[0];
+    this.form.patchValue({ image: file });
+    this.form.get('image')?.updateValueAndValidity();
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onSubmit() {
+    if (this.form.invalid) {
       return;
     }
 
     const newUpload = new NewUpload(
-      form.value.title,
-      form.value.description,
-      form.value.url,
+      this.form.value.title,
+      this.form.value.description,
+      this.form.value.url,
       this.authService.getId()
     );
 
@@ -91,7 +126,8 @@ export class UploadEditComponent implements OnInit, OnDestroy {
         newUpload, 
         (id: number) => {
           this.isLoading = false;
-          this.router.navigate(['uploads', id]);
+          // this.router.navigate(['uploads', id]);
+          this.form.reset();
         },
         (err: HttpErrorResponse) => {
           this.isLoading = false;
