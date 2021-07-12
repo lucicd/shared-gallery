@@ -41,6 +41,30 @@
           pInputText>
           <small *ngIf="urlInput.invalid && urlInput.touched" class="p-error">Please enter valid email address.</small>
         </div>
+        <hr>
+        
+        <div>
+          <button
+            pButton
+            pRiplle
+            label="Pick Image"
+            (click)="filePicker.click()"
+            class="p-button-raised p-button-secondary p-mr-2"
+            type="button">
+          </button>
+          <input type="file" #filePicker style="visibility: hidden;">
+        </div>
+        
+        <hr>
+        
+        <p-fileUpload
+          name="myfile[]"
+          url="./upload.php"
+          accept="image/*">
+        </p-fileUpload>
+        
+        <hr>
+        
         <img
           *ngIf="upload.url"
           src="{{ upload.url }}"

@@ -13,6 +13,7 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ToastModule } from 'primeng/toast';
+import { FileUploadModule } from 'primeng/fileupload';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -60,7 +61,8 @@ import { AuthInterceptor } from './auth/auth-interceptor';
     ProgressSpinnerModule,
     PasswordModule,
     ToolbarModule,
-    ToastModule
+    ToastModule,
+    FileUploadModule
   ],
   providers: [{
     provide: HTTP_INTERCEPTORS,
