@@ -66,73 +66,57 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.get('/for-owner/:owner_id', (req, res, next) => {
-  getOwner(req.params.owner_id)
-    .then(
-      owner => {
-        if (!owner) {
-          return res.status(404).json('Owner not found.');
-        }
-        Image.find({ owner: owner._id })
-          .populate('owner')
-          .lean()
-          .then(images => {
-            const data = images.map(image => {
-              return {
-                id: image.id,
-                title: image.title,
-                description: image.description,
-                url: image.url
-              }
-            });
-            res.status(200).json(data);
-          })
-          .catch(error => {
-            res.status(500).json(error);
-          });
-      }
-    );
-});
+router.get(
+  '/private/', 
+  checkAuth,
+  (req, res, next) => {
+    Image.find({ owner: req.userData.userId})
+      .populate('owner')
+      .lean()
+      .then(images => {
+        const data = images.map(image => {
+          return {
+            id: image.id,
+            title: image.title,
+            description: image.description,
+            url: image.url
+          }
+        });
+        res.status(200).json(data);
+      })
+      .catch(error => {
+        res.status(500).json(error);
+      });
+  }
+);
 
 router.post(
   '/',
   checkAuth,
   multer({ storage: storage }).single('image'),
   (req, res, next) => {
-  getOwner(req.body.owner_id)
-    .then(
-      owner => {
-        const maxImageId = sequenceGenerator.nextId('images');
-        const url = req.protocol + '://' + req.get('host');
-        const image = new Image({
-          id: maxImageId,
-          title: req.body.title,
-          description: req.body.description,
-          url: url + '/images/' + req.file.filename,
-          owner: owner._id
+    const maxImageId = sequenceGenerator.nextId('images');
+    const url = req.protocol + '://' + req.get('host');
+    const image = new Image({
+      id: maxImageId,
+      title: req.body.title,
+      description: req.body.description,
+      url: url + '/images/' + req.file.filename,
+      owner: req.userData.userId
+    });
+    image.save()
+      .then(savedImage => {
+        res.status(201).json({
+          message: 'Image added successfully',
+          data: {
+            id: savedImage.id,
+            title: savedImage.title,
+            description: savedImage.description,
+            url: savedImage.url
+          }
         });
-        image.save()
-          .then(savedImage => {
-            res.status(201).json({
-              message: 'Image added successfully',
-              data: savedImage
-            });
-          })
-          .catch(error => {
-            console.log(error);
-            res.status(500).json({
-              message: 'An error occurred',
-              data: error
-            });
-          });
-      },
-      error => {
-        res.status(404).json({
-          message: error,
-          data: error
-        });
-      }
-    );
+      })
+      .catch(error => res.status(500).json(error));
 });
 
 router.put(
@@ -140,50 +124,47 @@ router.put(
   checkAuth,
   multer({ storage: storage }).single('image'),
   (req, res, next) => {
-    Image.findOne({ id: req.params.id })
-      .then(image => {
-        if (!image) {
-          return res.status(404).json('Image not found.');
+    let image = {
+      title: req.body.title,
+      description: req.body.description,
+      url: req.body.url,
+    };
+    if (req.file) {
+      const url = req.protocol + '://' + req.get('host');
+      image.url = url + '/images/' + req.file.filename;
+    } 
+    Image.updateOne({ id: +req.params.id, owner: req.userData.userId }, image )
+      .then(result => {
+        if (result.nModified > 0) {
+          res.status(201).json({ url: image.url, message: 'Image updated successfully' });
+        } else if (result.n > 0) {
+          res.status(200).json({ message: 'No changes required.' });
+        } else {
+          res.status(401).json({ message: 'Not authorized.'});
         }
-        image.name = req.body.name,
-        image.title = req.body.title,
-        image.description = req.body.description;
-        if (req.file) {
-          const url = req.protocol + '://' + req.get('host');
-          image.url = url + '/images/' + req.file.filename;
-        } 
-        Image.updateOne({ id: req.params.id }, image)
-          .then(() => res.status(200).json({ url: image.url}))
-          .catch(error => res.status(500).json(error))
       })
-      .catch(error => res.status(500).json(error));
-    });
+      .catch(error => {
+        res.status(500).json(error);
+      })
+  }
+);
 
 router.delete(
   '/:id',
   checkAuth,
   (req, res, next) => {
-  Image.findOne({ id: req.params.id })
-    .then(image => {
-      Image.deleteOne({ id: req.params.id })
-        .then(result => {
-          res.status(204).json({
-            message: 'Image deleted successfully'
-          });
-        })
-        .catch(error => {
-            res.status(500).json({
-            message: 'An error occurred',
-            error: error
-          });
-        })
-    })
-    .catch(error => {
-      res.status(500).json({
-        message: 'Image not found.',
-        error: { document: 'Image not found'}
-      });
-    });
+    Image.deleteOne({ id: +req.params.id, owner: req.userData.userId })
+      .then(result => {
+        console.log(result);
+        if (result.deletedCount > 0) {
+          res.status(200).json({ message: 'Image deleted successfully' });
+        } else {
+          res.status(401).json({ message: 'Not authorized.'});
+        }
+      })
+      .catch(error => {
+          res.status(500).json(error);
+      })
 });
 
 module.exports = router; 

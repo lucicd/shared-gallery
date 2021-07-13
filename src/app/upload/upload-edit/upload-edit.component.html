@@ -24,40 +24,16 @@
             formControlName="description"
             pInputText>
         </div>
-        <hr>
         
-        <div>
+        <div class="p-d-flex">
           <button
             pButton
             pRiplle
             label="Pick Image"
             (click)="filePicker.click()"
-            class="p-button-raised p-button-secondary p-mr-2"
+            class="p-button-raised p-button-success p-mr-2"
             type="button">
           </button>
-          <input type="file" #filePicker (change)="onImagePicked($event)" style="visibility: hidden;">
-        </div>
-
-        <hr>
-
-        <div *ngIf="imagePreview !== '' && form.get('image')?.valid">
-          <img
-            [src]="imagePreview"
-            [alt]="form.value.description"
-            style="width: 100%; height: auto">
-        </div>
-        
-        <hr>
-        
-        <img
-          *ngIf="upload.url"
-          src="{{ upload.url }}"
-          alt="{{ upload.description }}"
-          style="width: 100%; height: auto">
-
-        <hr>
-
-        <div class="p-d-flex">
           <button
             pButton
             pRipple
@@ -75,6 +51,22 @@
             (click)="onCancel()">
           </button>
         </div>
+        <input type="file" #filePicker (change)="onImagePicked($event)" style="visibility: hidden;">
+
+        <div *ngIf="imagePreview !== '' && form.get('image')?.valid">
+          <img
+            [src]="imagePreview"
+            [alt]="form.value.description"
+            style="width: 100%; height: auto">
+        </div>
+        
+        <div *ngIf="upload.url && !(imagePreview !== '' && form.get('image')?.valid)">
+          <img
+            src="{{ upload.url }}"
+            alt="{{ upload.description }}"
+            style="width: 100%; height: auto">
+        </div>
+
       </div>
     </form>
   </p-card>

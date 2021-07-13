@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ToastService } from 'src/app/shared/toast.service';
 import { Upload } from '../upload.model';
 import { UploadService } from '../upload.service';
+import { formatError } from '../../shared/format-error';
 
 @Component({
   selector: 'shg-upload-detail',
@@ -17,7 +19,8 @@ export class UploadDetailComponent implements OnInit, OnDestroy {
   constructor(
     private uploadService: UploadService,
     private activatedRoute: ActivatedRoute,
-    private router: Router) { }
+    private router: Router,
+    private toastService: ToastService) { }
 
   ngOnInit(): void {
     this.subscription = this.uploadService.uploadListChangedEvent.subscribe(
@@ -31,8 +34,16 @@ export class UploadDetailComponent implements OnInit, OnDestroy {
   }
 
   onDelete() {
-    this.uploadService.deleteUpload(this.upload);
-    this.router.navigate(['/uploads']);
+    this.uploadService.deleteUpload(
+      this.upload.id,
+      (message: string) => {
+        this.toastService.showSuccess(message);
+        this.router.navigate(['/uploads']);
+      },
+      (err: any) => {
+        this.isLoading = false;
+        this.toastService.showError(formatError(err));
+      });
   }
 
   ngOnDestroy = (): void => this.subscription.unsubscribe()

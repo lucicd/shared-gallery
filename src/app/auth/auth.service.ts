@@ -1,6 +1,5 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { ServerResponse } from '../shared/server-response';
 import { AuthData } from './auth-data.model';
@@ -12,12 +11,9 @@ import { CurrentUser } from './current-user.model';
 export class AuthService {
   private currentUser: CurrentUser = {} as CurrentUser
   private isAuth = false;
-  private tokenTimer!: NodeJS.Timer;
   private authStatusListener = new Subject<boolean>();
 
-  constructor(
-    private http: HttpClient,
-    private router: Router) {}
+  constructor(private http: HttpClient) { }
 
   getToken() {
     return this.currentUser.token;
@@ -43,43 +39,56 @@ export class AuthService {
     return this.isAuth;
   }
 
-  createUser(authData: AuthData): void {
-    if (!authData) {
-      return;
+  createUser(
+    name: string,
+    authData: AuthData,
+    success: ((message: string) => any),
+    fail: ((error: any) => any)
+  ): void {
+    if (!name || !authData) {
+      return fail('Required data is missing.');
     }
-    this.http.post<ServerResponse<AuthData>>("http://localhost:3000/api/v1/users/signup", authData)
+    this.http.post<HttpResponse<any>>(
+      "http://localhost:3000/api/v1/users/signup", 
+      { ...authData, name: name },
+      { observe: 'response' })
       .subscribe(
-        (res: ServerResponse<AuthData>) => {
-          console.log(res);
+        (res: HttpResponse<any>) => {
+          success(res.body.message);
         },
-        (error: ServerResponse<AuthData>) => {
-          console.log(error);
+        (err: HttpErrorResponse) => {
+          fail(err);
         }
       );
   }
 
-  loginUser(authData: AuthData): void {
+  loginUser(
+    authData: AuthData,
+    success: ((message: string) => any),
+    fail: ((error: any) => any)
+  ): void {
     if (!authData) {
-      return;
+      return fail('Required data is missing.');
     }
-    this.http.post<ServerResponse<CurrentUser>>("http://localhost:3000/api/v1/users/login", authData)
+    this.http.post<HttpResponse<any>>(
+      "http://localhost:3000/api/v1/users/login",
+      authData,
+      { observe: 'response' })
       .subscribe(
-        (res: ServerResponse<CurrentUser>) => {
-          if (res.data.token) {
-            this.setAuthTimer(res.data.expiresIn);
+        (res: HttpResponse<any>) => {
+          if (res.body.data.token) {
             this.isAuth = true;
-            this.currentUser = res.data;
-            const now = new Date();
-            const expirationDate = 
-              new Date(now.getTime() + res.data.expiresIn * 1000);
-            this.saveAuthData(this.currentUser, expirationDate);
+            this.currentUser = res.body.data;
+            this.saveAuthData(this.currentUser);
             this.authStatusListener.next(true);
-            this.router.navigate(['/']);
+            success('Welcome ' + res.body.data.name);
+          } else {
+            fail('Could not generate auth token.');
           }
         },
-        (error: ServerResponse<any>) => {
+        (err: HttpErrorResponse) => {
           this.currentUser = {} as CurrentUser;
-          console.log(error);
+          fail(err);
         }
       );
   }
@@ -89,52 +98,34 @@ export class AuthService {
     if (!authInformation) {
       return;
     }
-    const now = new Date();
-    const expiresIn = 
-      authInformation.expirationDate.getTime() - 
-      now.getTime();
-    if (expiresIn > 0) {
-      this.currentUser = authInformation.currentUser;
-      this.isAuth = true;
-      this.setAuthTimer(expiresIn / 1000);
-      this.authStatusListener.next(true);
-    }
+    this.currentUser = authInformation.currentUser;
+    this.isAuth = true;
+    this.authStatusListener.next(true);
   }
 
-  logout() {
+  logout(callback: () => any ) {
     this.isAuth = false;
     this.currentUser = {} as CurrentUser;
-    clearTimeout(this.tokenTimer);
     this.clearAuthData();
     this.authStatusListener.next(false);
-    this.router.navigate(['/']);
+    callback();
   }
 
-  private setAuthTimer(duration: number) {
-    this.tokenTimer = setTimeout(() =>{
-      this.logout();
-    }, duration * 1000);
-  }
-
-  private saveAuthData(currentUser: CurrentUser, expirationDate: Date) {
+  private saveAuthData(currentUser: CurrentUser) {
     localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-    localStorage.setItem('expiration', expirationDate.toISOString());
   }
 
   private clearAuthData() {
     localStorage.removeItem('currentUser');
-    localStorage.removeItem('expiration');
   }
 
   private getAuthData() {
     const currUser = localStorage.getItem('currentUser');
-    const expirationDate = localStorage.getItem('expiration');
-    if (!currUser || !expirationDate) {
+    if (!currUser) {
       return;
     }
     return {
       currentUser: JSON.parse(currUser),
-      expirationDate: new Date(expirationDate)
     }
   }
 }

@@ -2,18 +2,22 @@
   <p-card>
     <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
     <div *ngIf="!isLoading">
-      <button
-        type="button"
-        pButton
-        [routerLink]="['edit']"
-        label="Edit">
-      </button>
-      <button
-        type="button"
-        pButton
-        (click)="onDelete()"
-        label="Delete">
-      </button>
+      <div class="p-d-flex">
+        <button
+          type="button"
+          pButton
+          [routerLink]="['edit']"
+          label="Edit"
+          class="p-button-raised p-mr-2">
+        </button>
+        <button
+          type="button"
+          pButton
+          (click)="onDelete()"
+          label="Delete"
+          class="p-button-danger p-mr-2">
+        </button>
+      </div>
       <p>{{ upload.title }}</p>
       <p>{{ upload.description }}</p>
       <img

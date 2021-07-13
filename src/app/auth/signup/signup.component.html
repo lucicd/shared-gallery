@@ -5,6 +5,19 @@
       <form (submit)="onSignup(signupForm)" #signupForm="ngForm" *ngIf="!isLoading">
         <div class="p-fluid">
           <div class="p-field">
+            <label for="name">Name*</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              ngModel
+              #nameInput="ngModel"
+              required
+              [ngClass]="{'ng-invalid ng-dirty':nameInput.invalid && nameInput.touched}"
+              pInputText>
+            <small *ngIf="nameInput.invalid && nameInput.touched" class="p-error">Please enter your name.</small>
+          </div>
+          <div class="p-field">
             <label for="emil">Email*</label>
             <input
               type="email"
@@ -29,7 +42,7 @@
               required
               [ngClass]="{'ng-invalid ng-dirty':passwordInput.invalid && passwordInput.touched}"
               pInputText>
-            <small *ngIf="passwordInput.invalid && passwordInput.touched" class="p-error">Please enter valid password.</small>
+            <small *ngIf="passwordInput.invalid && passwordInput.touched" class="p-error">Please enter password.</small>
           </div>
           <div class="p-grid p-jc-center">
             <div class="p-col-4">

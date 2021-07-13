@@ -4,7 +4,8 @@
       <span class="pi pi-plus"></span>
     </button>
   </ng-template>
-  <div class="p-grid">
+  <h4 *ngIf="images.length === 0">Your gallery is empty. Please upload some images.</h4>
+  <div class="p-grid" *ngIf="images.length > 0">
     <div class="p-col-12 pm-md-6 p-lg-3" *ngFor="let image of images">
       <shg-upload-item [image]="image"></shg-upload-item>
     </div>

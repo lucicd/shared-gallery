@@ -1,7 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
+import { LogoutService } from 'src/app/auth/logout.service';
+import { UploadService } from 'src/app/upload/upload.service';
 
 @Component({
   selector: 'shg-menu-bar',
@@ -12,7 +15,10 @@ export class MenuBarComponent implements OnInit, OnDestroy {
   items: MenuItem[] = [];
   private authListenerSubs: Subscription = {} as Subscription;
 
-  constructor(private authService: AuthService) { }
+  constructor(
+    private authService: AuthService,
+    private logoutService: LogoutService,
+    private router: Router) { }
 
   getMenu = (isAunthenticated: boolean): MenuItem[] => {
     if (isAunthenticated) {
@@ -60,7 +66,10 @@ export class MenuBarComponent implements OnInit, OnDestroy {
   }
 
   onLogout = () => {
-    this.authService.logout();
+    this.authService.logout(() => {
+      this.logoutService.logout();
+      this.router.navigate(['/']);
+    });
   }
 
   ngOnInit(): void {

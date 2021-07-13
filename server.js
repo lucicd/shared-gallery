@@ -25,7 +25,7 @@ const imagesRoutes = require('./server/routes/images');
 
 // Establish a connection to the mongo database.
 mongoose.connect('mongodb://localhost:27017/shared-gallery',
-  { useNewUrlParser: true, useUnifiedTopology: true }, (err, res) => {
+  { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false }, (err, res) => {
     if (err) {
       console.log('Connection failed: ' + err);
     }

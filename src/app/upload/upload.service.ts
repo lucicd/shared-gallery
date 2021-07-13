@@ -1,7 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { ServerResponse } from '../shared/server-response';
-import { Subject } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { Upload } from './upload.model';
 
@@ -10,17 +9,22 @@ import { Upload } from './upload.model';
 })
 export class UploadService {
   private images: Upload[] = [];
+  private logoutServiceSubscription: Subscription = {} as Subscription;
   uploadListChangedEvent = new Subject<Upload[]>();
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService 
-  ) {
+    private authService: AuthService) { }
+
+  getUploads = () => {
+    if (!this.authService.getIsAuth()) {
+      return
+    }
+    if (this.images.length > 0) {
+      return this.sortAndSend();
+    }
     this.http
-      .get<Upload[]>
-        ('http://localhost:3000/api/v1/images/for-owner/' + 
-        authService.getId()
-      )
+      .get<Upload[]>('http://localhost:3000/api/v1/images/private/')
       .subscribe(
         (res: Upload[]) => {
           this.images = res;
@@ -28,6 +32,11 @@ export class UploadService {
         }
       ),
       (error: any) => console.log(error);
+  }
+
+  clearUploads = () => {
+    this.images = [];
+    this.sortAndSend();
   }
 
   private sortAndSend() {
@@ -41,8 +50,6 @@ export class UploadService {
     this.uploadListChangedEvent.next(this.images.slice());
   }
 
-  getUploads = (): Upload[] => this.images.slice()
-
   getUpload(id: number): Upload | null {
     const pos = this.images.findIndex(e => {
       if (!e.id) return false;
@@ -51,47 +58,68 @@ export class UploadService {
     return pos < 0 ? null : this.images[pos];
   }
 
-  deleteUpload(image: Upload) {
-    if (!image) {
-      return;
+  deleteUpload(
+    id: number,
+    success: ((message: string) => any),
+    fail: ((error: any) => any)
+  ) {
+    if (!id) {
+      return fail('Image ID not provided.');
     }
-    const pos = this.images.findIndex(e => e.id === image.id);
+    const pos = this.images.findIndex(e => e.id === id);
     if (pos < 0) {
-      return;
+      return fail('Could not find image with given ID.');
     }
-    this.http.delete<{message: string}>('http://localhost:3000/api/v1/images/' + image.id)
-      .subscribe((data: {message: string}) => {
-        this.images.splice(pos, 1);
-        this.sortAndSend();;
-      });
+    this.http.delete<HttpResponse<any>>(
+      'http://localhost:3000/api/v1/images/' + id,
+      { observe: 'response' }
+    )
+    .subscribe(
+      (res: HttpResponse<any>) => {
+        if (res.status === 200) {
+          this.images.splice(pos, 1);
+          this.sortAndSend();;
+          success(res.body.message);
+        } else {
+          fail(res.body.message);
+        }
+      },
+      (err: HttpErrorResponse) => {
+        fail(err);
+      }
+    );
   }
 
   addUpload(
     title: string,
     description: string,
     image: File,
-    callback: ((id: number) => any),
+    success: ((id: number, message: string) => any),
     fail: ((error: any) => any)
   ): void {
     const uploadData = new FormData();
     uploadData.append('title', title);
     uploadData.append('description', description);
-    uploadData.append('owner_id', this.authService.getId().toString());
     uploadData.append('image', image, title);
-    this.http.post<any>(
+    this.http.post<HttpResponse<any>>(
       'http://localhost:3000/api/v1/images', 
-      uploadData
-      )
-      .subscribe(
-        (res: any) => {
-          this.images.push(res.data);
+      uploadData,
+      { observe: 'response' }
+    )
+    .subscribe(
+      (res: HttpResponse<any>) => {
+        if (res.status === 201) {
+          this.images.push(res.body.data);
           this.sortAndSend();
-          callback(res.data.id);
-        },
-        (err: HttpErrorResponse) => {
-          fail(err);
+          success(res.body.data.id, res.body.message);
+        } else {
+          fail(res.body.message);
         }
-      );
+      },
+      (err: HttpErrorResponse) => {
+        fail(err);
+      }
+    );
   }
 
   updateUpload(
@@ -99,7 +127,7 @@ export class UploadService {
     title: string,
     description: string,
     image: File | string,
-    callback: (() => any),
+    success: ((message: string) => any),
     fail: ((error: any) => any)
   ): void {
     const pos = this.images.findIndex(e => e.id === id);
@@ -112,7 +140,6 @@ export class UploadService {
         public id: number,
         public title: string,
         public description: string,
-        public owner_id: number,
         public url: string 
       ) {}
     }
@@ -123,28 +150,33 @@ export class UploadService {
       uploadData = new FormData();
       uploadData.append('title', title);
       uploadData.append('description', description);
-      uploadData.append('owner_id', this.authService.getId().toString());
       uploadData.append('image', image, title);
     } else {
       uploadData = new UploadData(
         id,
         title,
         description,
-        this.authService.getId(),
         image
       );
     }
-    this.http.put<{ url: string }>(
+    this.http.put<HttpResponse<any>>(
       'http://localhost:3000/api/v1/images/' + id, 
-      uploadData
+      uploadData,
+      { observe: 'response' }
     )
     .subscribe(
-      (res: { url: string }) => {
-        this.images[pos].title = title;
-        this.images[pos].description = description;
-        this.images[pos].url = res.url;
-        this.sortAndSend();
-        callback();
+      (res: HttpResponse<any>) => {
+        if (res.status === 201) {
+          this.images[pos].title = title;
+          this.images[pos].description = description;
+          this.images[pos].url = res.body.url;
+          this.sortAndSend();
+          success(res.body.message);
+        } else if (res.status === 200) {
+          success(res.body.message);
+        } else {
+          fail(res.body.message);
+        }
       },
       (err: HttpErrorResponse) => {
         fail(err);

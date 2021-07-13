@@ -1,11 +1,16 @@
-<p-card header="{{ image.title }}">
-  <a
-    [routerLink]="[image.id]"
-    routerLinkActive="active">
-    <img
-      *ngIf="image.url"
-      src="{{ image.url }}"
-      alt="{{ image.description }}"
-      style="width: 100%; height: auto">
-  </a>
+<p-card>
+  <ng-template pTemplate="subtitle">
+      {{ image.title }}
+  </ng-template>
+  <ng-template pTemplate="content">
+    <a
+      [routerLink]="[image.id]"
+      routerLinkActive="active">
+      <img
+        *ngIf="image.url"
+        src="{{ image.url }}"
+        alt="{{ image.description }}"
+        style="width: 100%; height: auto">
+    </a>
+  </ng-template>
 </p-card>

@@ -1,18 +1,17 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { UploadService } from '../upload.service';
 import { Upload } from '../upload.model';
 import { mimeType  } from '../../shared/mime-type.validator'
+import { ToastService } from 'src/app/shared/toast.service';
+import { formatError } from 'src/app/shared/format-error';
 
 @Component({
   selector: 'shg-upload-edit',
   templateUrl: './upload-edit.component.html',
-  styleUrls: ['./upload-edit.component.css'],
-  providers: [MessageService]
+  styleUrls: ['./upload-edit.component.css']
 })
 export class UploadEditComponent implements OnInit, OnDestroy {
   upload: Upload = {} as Upload;
@@ -20,21 +19,13 @@ export class UploadEditComponent implements OnInit, OnDestroy {
   isLoading = false;
   form: FormGroup = {} as FormGroup;
   editMode = false;
-  imagePreview = "";
+  imagePreview = '';
 
   constructor(
     private uploadService: UploadService, 
     private router: Router, 
     private activatedRoute: ActivatedRoute,
-    private messageService: MessageService) { }
-
-  showError(err: string) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: err
-    });
-  }
+    private toastService: ToastService) { }
 
   ngOnInit(): void {
     this.form = new FormGroup({
@@ -105,27 +96,28 @@ export class UploadEditComponent implements OnInit, OnDestroy {
         this.form.value.title,
         this.form.value.description, 
         this.form.value.image,
-        () => {
+        (message: string) => {
           this.isLoading = false;
+          this.toastService.showSuccess(message);
           this.router.navigate(['uploads', this.upload.id]);
         },
-        (err: HttpErrorResponse) => {
+        (err: any) => {
           this.isLoading = false;
-          this.showError(err.status + ' ' + err.statusText);
+          this.toastService.showError(formatError(err));
         });
     } else {
       this.uploadService.addUpload(
         this.form.value.title,
         this.form.value.description, 
         this.form.value.image,
-        (id: number) => {
+        (id: number, message: string) => {
           this.isLoading = false;
-          // this.router.navigate(['uploads', id]);
-          this.form.reset();
+          this.toastService.showSuccess(message);
+          this.router.navigate(['uploads', id]);
         },
-        (err: HttpErrorResponse) => {
+        (err: any) => {
           this.isLoading = false;
-          this.showError(err.status + ' ' + err.statusText);
+          this.toastService.showError(formatError(err));
         });
     }
   }
