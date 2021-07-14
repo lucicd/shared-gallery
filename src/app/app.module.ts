@@ -13,7 +13,8 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ToastModule } from 'primeng/toast';
-import { FileUploadModule } from 'primeng/fileupload';
+// import { FileUploadModule } from 'primeng/fileupload';
+import { GalleriaModule } from 'primeng/galleria';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -24,7 +25,6 @@ import { SignupComponent } from './auth/signup/signup.component';
 import { HomeComponent } from './home/home/home.component';
 import { UploadComponent } from './upload/upload.component';
 import { BrowseComponent } from './browse/browse/browse.component';
-import { MyAccountComponent } from './my-account/my-account/my-account.component';
 import { UploadDetailComponent } from './upload/upload-detail/upload-detail.component';
 import { UploadEditComponent } from './upload/upload-edit/upload-edit.component';
 import { UploadItemComponent } from './upload/upload-item/upload-item.component';
@@ -40,7 +40,6 @@ import { AuthInterceptor } from './auth/auth-interceptor';
     HomeComponent,
     UploadComponent,
     BrowseComponent,
-    MyAccountComponent,
     UploadDetailComponent,
     UploadEditComponent,
     UploadItemComponent,
@@ -63,7 +62,7 @@ import { AuthInterceptor } from './auth/auth-interceptor';
     PasswordModule,
     ToolbarModule,
     ToastModule,
-    FileUploadModule
+    GalleriaModule
   ],
   providers: [{
     provide: HTTP_INTERCEPTORS,

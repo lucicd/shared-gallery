@@ -1,2 +1,5 @@
 <p-menubar [model]="items">
+  <ng-template pTemplate="end">
+    <span *ngIf="userGreeting">{{ userGreeting }}</span>
+  </ng-template>
 </p-menubar>

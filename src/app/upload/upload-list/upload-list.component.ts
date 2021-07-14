@@ -27,7 +27,6 @@ export class UploadListComponent implements OnInit, OnDestroy {
       this.logoutService.userLoggedOutEvent.subscribe(
         (message: string) => {
           this.uploadService.clearUploads();
-          // this.uploadService.getUploads();
         }
       );
 

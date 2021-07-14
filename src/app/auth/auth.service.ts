@@ -1,7 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { ServerResponse } from '../shared/server-response';
 import { AuthData } from './auth-data.model';
 import { CurrentUser } from './current-user.model';
 

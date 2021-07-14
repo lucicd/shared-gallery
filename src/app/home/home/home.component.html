@@ -1,1 +1,12 @@
-<p>home works!</p>
+<div *ngIf="!userGreeting">
+  <h1>Welcome to Shared Gallery!</h1>
+  <p>Feel free to <a [routerLink]="['/browse']">browse</a> images in all shared galleries.</p>
+  <p>Should you wish to share your own images, please <a [routerLink]="['/signup']">signup</a>.</p>
+  <p>If you are already signed up, please <a [routerLink]="['/login']">login</a> with your email and password.</p>
+</div>
+<div *ngIf="userGreeting">
+  <h1>{{userGreeting}}</h1>
+  <p>Feel free to <a [routerLink]="['/browse']">browse</a> images in all shared galleries.</p>
+  <p>Should you wish to share your own images, please <a [routerLink]="['/uploads']">upload</a> them.</p>
+</div>
+

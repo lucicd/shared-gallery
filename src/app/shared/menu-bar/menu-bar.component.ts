@@ -4,7 +4,6 @@ import { MenuItem } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
 import { LogoutService } from 'src/app/auth/logout.service';
-import { UploadService } from 'src/app/upload/upload.service';
 
 @Component({
   selector: 'shg-menu-bar',
@@ -13,6 +12,7 @@ import { UploadService } from 'src/app/upload/upload.service';
 })
 export class MenuBarComponent implements OnInit, OnDestroy {
   items: MenuItem[] = [];
+  userGreeting = '';
   private authListenerSubs: Subscription = {} as Subscription;
 
   constructor(
@@ -25,43 +25,47 @@ export class MenuBarComponent implements OnInit, OnDestroy {
       return [
         {
           label: 'Home',
-          routerLink: ['/home']
+          routerLink: ['/home'],
+          title: 'Shows home page.'
         },
         { 
           label: 'Uploads', 
-          routerLink: ['/uploads']
+          routerLink: ['/uploads'],
+          title: 'Upload images, manage your own image gallery.'
         },
         { 
           label: 'Browse', 
-          routerLink: ['/browse']
+          routerLink: ['/browse'],
+          title: 'Browse all image galleries.'
         },
         { 
           label: 'Logout',
-          command: this.onLogout
-        },
-        {
-          label: 'My Account',
-          routerLink: ['/my-account']
+          command: this.onLogout,
+          title: 'End your session.'
         }
       ];
     }
     return [
       {
         label: 'Home',
-        routerLink: ['/home']
+        routerLink: ['/home'],
+        title: 'Shows home page.'
       },
       { 
         label: 'Browse', 
-        routerLink: ['/browse']
+        routerLink: ['/browse'],
+        title: 'Browse all image galleries.'
       },
       { 
         label: 'Login', 
-        routerLink: ['/login']
+        routerLink: ['/login'],
+        title: 'Login with your user name and password.'
       },
       { 
         label: 'Signup', 
-        routerLink: ['/signup']
-      },
+        routerLink: ['/signup'],
+        title: 'Signup and create your own image gallery.'
+      }
     ];
   }
 
@@ -78,9 +82,21 @@ export class MenuBarComponent implements OnInit, OnDestroy {
         .getAuthStatusListener()
         .subscribe(isAunthenticated => {
           this.items = this.getMenu(isAunthenticated);
+          if (isAunthenticated) {
+            this.userGreeting
+              = 'Welcome ' + this.authService.getName() + '!';
+          } else {
+            this.userGreeting = '';
+          }
         });
 
     this.items = this.getMenu(this.authService.getIsAuth());
+    if (this.authService.getIsAuth()) {
+      this.userGreeting
+        = 'Welcome ' + this.authService.getName() + '!';
+    } else {
+      this.userGreeting = '';
+    } 
   }
 
   ngOnDestroy() {

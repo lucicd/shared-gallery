@@ -29,18 +29,6 @@ const storage = multer.diskStorage({
   }
 });
 
-function getOwner(ownerId) {
-  return new Promise((resolve, reject) => {
-    if (!ownerId) {
-      reject('Owner ID is empty.');
-      return;
-    }
-    User.findOne({ id: ownerId })
-      .then(owner => resolve(owner))
-      .catch(error => reject(error));
-  });
-}
-
 router.get('/', (req, res, next) => {
   Image.find()
     .populate('owner')

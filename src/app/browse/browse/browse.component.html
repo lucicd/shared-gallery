@@ -1,1 +1,23 @@
-<p>browse works!</p>
+<p-galleria 
+  [value]="images"
+  [responsiveOptions]="responsiveOptions"
+  [containerStyle]="{'max-width': '50%'}" 
+  [numVisible]="5"
+  [circular]="true"
+>
+  <ng-template pTemplate="item" let-item>
+    <img [src]="item.url" [alt]="item.title" style="width: 100%; display: block;"/>
+  </ng-template>
+  <ng-template pTemplate="thumbnail" let-item>
+    <div class="p-grid p-nogutter p-justify-center">
+      <img [src]="item.url" style="width: 100%; height: auto">/>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="caption" let-item>
+    <span style="margin-bottom: .5rem; color: #ffffff;">{{item.title}}</span>
+    <br>
+    <span>{{item.description}}</span>
+    <br>
+    <span>Shared by: {{item.ownerName}}</span>
+  </ng-template>
+</p-galleria>
