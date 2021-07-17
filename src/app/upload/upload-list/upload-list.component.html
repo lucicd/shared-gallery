@@ -1,10 +1,16 @@
 <p-panel header="Uploads">
   <ng-template pTemplate="icons">
-    <button pButton class="p-panel-header-icon p-link" [routerLink]="['new']">
-      <span class="pi pi-plus"></span>
+    <button pButton 
+      [routerLink]="['new']"
+      label="Upload"
+      class="p-button-raised"
+      icon="pi pi-plus" 
+      iconPos="right">
     </button>
   </ng-template>
-  <h4 *ngIf="images.length === 0">Your gallery is empty. Please upload some images.</h4>
+  <h4 *ngIf="images.length === 0">
+    Your gallery is empty. Please <a [routerLink]="['/uploads','new']">upload</a> some images.
+  </h4>
   <div class="p-grid" *ngIf="images.length > 0">
     <div class="p-col-12 pm-md-6 p-lg-3" *ngFor="let image of images">
       <shg-upload-item [image]="image"></shg-upload-item>

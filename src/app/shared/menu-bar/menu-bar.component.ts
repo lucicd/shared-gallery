@@ -25,21 +25,25 @@ export class MenuBarComponent implements OnInit, OnDestroy {
       return [
         {
           label: 'Home',
+          icon: 'pi pi-home',
           routerLink: ['/home'],
           title: 'Shows home page.'
         },
         { 
-          label: 'Uploads', 
-          routerLink: ['/uploads'],
-          title: 'Upload images, manage your own image gallery.'
-        },
-        { 
           label: 'Browse', 
+          icon: 'pi pi-images',
           routerLink: ['/browse'],
           title: 'Browse all image galleries.'
         },
         { 
+          label: 'Uploads', 
+          icon: 'pi pi-upload',
+          routerLink: ['/uploads'],
+          title: 'Upload images, manage your own image gallery.'
+        },
+        { 
           label: 'Logout',
+          icon: 'pi pi-sign-out',
           command: this.onLogout,
           title: 'End your session.'
         }
@@ -48,21 +52,25 @@ export class MenuBarComponent implements OnInit, OnDestroy {
     return [
       {
         label: 'Home',
+        icon: 'pi pi-home',
         routerLink: ['/home'],
         title: 'Shows home page.'
       },
       { 
-        label: 'Browse', 
+        label: 'Browse',
+        icon: 'pi pi-images',
         routerLink: ['/browse'],
         title: 'Browse all image galleries.'
       },
       { 
         label: 'Login', 
+        icon: 'pi pi-sign-in',
         routerLink: ['/login'],
         title: 'Login with your user name and password.'
       },
       { 
         label: 'Signup', 
+        icon: 'pi pi-user-plus',
         routerLink: ['/signup'],
         title: 'Signup and create your own image gallery.'
       }

@@ -67,7 +67,13 @@ export class UploadEditComponent implements OnInit, OnDestroy {
     ); 
   }
 
-  onCancel = () => this.router.navigate(['uploads', this.upload.id])
+  onCancel = () => {
+    if (this.upload.id) {
+      this.router.navigate(['uploads', this.upload.id]);
+    } else {
+      this.router.navigate(['uploads']);
+    }
+  }
 
   onImagePicked(event: Event) {
     const files = (event.target as HTMLInputElement).files;
